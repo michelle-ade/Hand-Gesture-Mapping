@@ -11,6 +11,9 @@ import cv2 as cv
 import numpy as np
 import mediapipe as mp
 
+import pyautogui
+import pydirectinput
+
 from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
@@ -61,7 +64,7 @@ def main():
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(
         static_image_mode=use_static_image_mode,
-        max_num_hands=1,
+        max_num_hands=2,
         min_detection_confidence=min_detection_confidence,
         min_tracking_confidence=min_tracking_confidence,
     )
@@ -145,6 +148,11 @@ def main():
                     point_history.append(landmark_list[8])
                 else:
                     point_history.append([0, 0])
+
+                #test - if closed hand, press C on keyboard
+                if hand_sign_id == 1:
+                    #print("Pressing C")
+                    pyautogui.press('C')
 
                 # Finger gesture classification
                 finger_gesture_id = 0
