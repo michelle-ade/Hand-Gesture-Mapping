@@ -126,6 +126,9 @@ def main():
 
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
+
+            rightGesture = "";
+            leftGesture = "";
             for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                   results.multi_handedness):
                 # Bounding box calculation
@@ -149,13 +152,88 @@ def main():
                 else:
                     point_history.append([0, 0])
 
+                #check handedness - returns "Right" or "Left"
+                #print(handedness.classification[0].label[0:])
+
                 #test - if closed hand, press C on keyboard
-                if hand_sign_id == 1:
+                #if hand_sign_id == 1:
                     #print("Pressing C")
-                    pyautogui.press('C')
+                    #pyautogui.press('C')
+                
+
+                #Getting Both Hands' Gestures
+                #rightGesture = "";
+                if (handedness.classification[0].label[0:] == "Right"):
+
+                    #Right - Open
+                    if (hand_sign_id == 0):
+                        rightGesture = "open"
+
+                    #Right - Close
+                    elif (hand_sign_id == 1):
+                        rightGesture = "close"
+
+                    #Right - Pointer
+                    elif (hand_sign_id == 2):
+                        rightGesture = "pointer"
+                
+                #print("Right: " + rightGesture)
+
+                #leftGesture = "";
+                if (handedness.classification[0].label[0:] == "Left"):
+
+                    #Left - Open
+                    if (hand_sign_id == 0):
+                        leftGesture = "open"
+
+                    #Left - Close
+                    elif (hand_sign_id == 1):
+                        leftGesture = "close"
+
+                    #Left - Pointer
+                    elif (hand_sign_id == 2):
+                        leftGesture = "pointer"
+                
+                #print("Left: " + leftGesture)
+
+                #Hand Gesture Combinations. Right Hand determines gesture group
+                if (rightGesture == "open"):
+
+                    if (leftGesture == "open"):
+                        print("Select All.")
+                        pyautogui.hotkey('ctrl', 'a')
+                    elif (leftGesture == "close"):
+                        print("Copy")
+                        pyautogui.hotkey('ctrl', 'c')
+                    elif (leftGesture == "pointer"):
+                        print("Paste")
+                        pyautogui.hotkey('ctrl', 'v')
+
+                elif (rightGesture == "close"):
+
+                    if (leftGesture == "open"):
+                        print("Backspace.")
+                        pyautogui.press('backspace')
+                    elif (leftGesture == "close"):
+                        print("Close Window")
+                        pyautogui.hotkey('alt', 'f4')
+                    elif (leftGesture == "pointer"):
+                        print("Cut")
+                        pyautogui.hotkey('ctrl', 'x')
+
+                elif (rightGesture == "pointer"):
+                    #maybe enable point history here?
+                    #pyautogui.moveTo()
+                    if (leftGesture == "open"):
+                        print("Mouse.")
+                    elif (leftGesture == "close"):
+                        print("Left-Click")
+                    elif (leftGesture == "pointer"):
+                        print("Right-Click")
 
                 # Finger gesture classification
                 finger_gesture_id = 0
+
                 point_history_len = len(pre_processed_point_history_list)
                 if point_history_len == (history_length * 2):
                     finger_gesture_id = point_history_classifier(
