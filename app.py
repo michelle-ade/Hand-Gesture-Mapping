@@ -6,6 +6,7 @@ import argparse
 import itertools
 from collections import Counter
 from collections import deque
+import time
 
 import cv2 as cv
 import numpy as np
@@ -124,11 +125,16 @@ def main():
         results = hands.process(image)
         image.flags.writeable = True
 
+        currentCommand = ""
+
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
 
             rightGesture = "";
             leftGesture = "";
+
+            #one command fire for each gesture detected
+            #currentCommand;
             for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                   results.multi_handedness):
                 # Bounding box calculation
@@ -200,36 +206,42 @@ def main():
                 if (rightGesture == "open"):
 
                     if (leftGesture == "open"):
-                        print("Select All.")
+                        currentCommand = "SelectAll."
                         pyautogui.hotkey('ctrl', 'a')
+
                     elif (leftGesture == "close"):
-                        print("Copy")
+                        currentCommand = "Copy"
                         pyautogui.hotkey('ctrl', 'c')
+
                     elif (leftGesture == "pointer"):
-                        print("Paste")
+                        currentCommand ="Paste"
                         pyautogui.hotkey('ctrl', 'v')
 
                 elif (rightGesture == "close"):
 
                     if (leftGesture == "open"):
-                        print("Backspace.")
+                        currentCommand = "Backspace."
                         pyautogui.press('backspace')
+
                     elif (leftGesture == "close"):
-                        print("Close Window")
+                        #1 sec hold delay
+                        time.sleep(1)
+                        currentCommand = "CloseWindow"
                         pyautogui.hotkey('alt', 'f4')
+
                     elif (leftGesture == "pointer"):
-                        print("Cut")
+                        currentCommand = "Cut"
                         pyautogui.hotkey('ctrl', 'x')
 
                 elif (rightGesture == "pointer"):
                     #maybe enable point history here?
                     #pyautogui.moveTo()
                     if (leftGesture == "open"):
-                        print("Mouse.")
+                        currentCommand = "Mouse."
                     elif (leftGesture == "close"):
-                        print("Left-Click")
+                        currentCommand = "Left-Click"
                     elif (leftGesture == "pointer"):
-                        print("Right-Click")
+                        currentCommand = "Right-Click"
 
                 # Finger gesture classification
                 finger_gesture_id = 0
@@ -252,13 +264,13 @@ def main():
                     brect,
                     handedness,
                     keypoint_classifier_labels[hand_sign_id],
-                    point_history_classifier_labels[most_common_fg_id[0][0]],
+                    point_history_classifier_labels[most_common_fg_id[0][0]]
                 )
         else:
             point_history.append([0, 0])
 
         debug_image = draw_point_history(debug_image, point_history)
-        debug_image = draw_info(debug_image, fps, mode, number)
+        debug_image = draw_info(debug_image, fps, mode, number, currentCommand)
 
         # Screen reflection #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)
@@ -583,8 +595,6 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
                  (0, 0, 0), -1)
 
     info_text = handedness.classification[0].label[0:]
-    if hand_sign_text != "":
-        info_text = info_text + ':' + hand_sign_text
     cv.putText(image, info_text, (brect[0] + 5, brect[1] - 4),
                cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv.LINE_AA)
 
@@ -607,7 +617,7 @@ def draw_point_history(image, point_history):
     return image
 
 
-def draw_info(image, fps, mode, number):
+def draw_info(image, fps, mode, number, command):
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
@@ -622,6 +632,12 @@ def draw_info(image, fps, mode, number):
             cv.putText(image, "NUM:" + str(number), (10, 110),
                        cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
                        cv.LINE_AA)
+    if command == "":
+        command = "Unspecified"
+    cv.putText(image, "Command: " + command, (200, 30), cv.FONT_HERSHEY_SIMPLEX,
+            1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "Command: " + command, (200, 30), cv.FONT_HERSHEY_SIMPLEX,
+            1.0, (255, 255, 255), 2, cv.LINE_AA)
     return image
 
 
