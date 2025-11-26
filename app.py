@@ -126,6 +126,7 @@ def main():
         image.flags.writeable = True
 
         currentCommand = ""
+        pointCoords = ""
 
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
@@ -182,6 +183,13 @@ def main():
                     #Right - Pointer
                     elif (hand_sign_id == 2):
                         rightGesture = "pointer"
+
+                        #get pointer finger coords
+                        pointer = landmark_list[8]   # [x, y]
+                        pointCoords = f"X: {pointer[0]}, Y: {pointer[1]}"
+
+                        #move mouse to pointer coords
+                        pyautogui.moveTo(pointer[0], pointer[1])
                 
                 #print("Right: " + rightGesture)
 
@@ -240,8 +248,10 @@ def main():
                         currentCommand = "Mouse."
                     elif (leftGesture == "close"):
                         currentCommand = "Left-Click"
+                        pyautogui.click()
                     elif (leftGesture == "pointer"):
                         currentCommand = "Right-Click"
+                        pyautogui.click(button='right')
 
                 # Finger gesture classification
                 finger_gesture_id = 0
@@ -270,7 +280,7 @@ def main():
             point_history.append([0, 0])
 
         debug_image = draw_point_history(debug_image, point_history)
-        debug_image = draw_info(debug_image, fps, mode, number, currentCommand)
+        debug_image = draw_info(debug_image, fps, mode, number, currentCommand, pointCoords)
 
         # Screen reflection #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)
@@ -616,13 +626,15 @@ def draw_point_history(image, point_history):
 
     return image
 
-
-def draw_info(image, fps, mode, number, command):
+#Info To Go on Screen
+def draw_info(image, fps, mode, number, command, pointCoords):
+    #Write FPS
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
 
+    #Write input mode (not used after training)
     mode_string = ['Logging Key Point', 'Logging Point History']
     if 1 <= mode <= 2:
         cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
@@ -632,11 +644,20 @@ def draw_info(image, fps, mode, number, command):
             cv.putText(image, "NUM:" + str(number), (10, 110),
                        cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
                        cv.LINE_AA)
+
+    #Write current hand command 
     if command == "":
-        command = "Unspecified"
+        command = "N/A"
+
     cv.putText(image, "Command: " + command, (200, 30), cv.FONT_HERSHEY_SIMPLEX,
             1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "Command: " + command, (200, 30), cv.FONT_HERSHEY_SIMPLEX,
+            1.0, (255, 255, 255), 2, cv.LINE_AA)
+    
+    #Write current pointer coordinates
+    cv.putText(image, "Coords: " + pointCoords, (500, 30), cv.FONT_HERSHEY_SIMPLEX,
+            1.0, (0, 0, 0), 4, cv.LINE_AA)
+    cv.putText(image, "Coords: " + pointCoords, (500, 30), cv.FONT_HERSHEY_SIMPLEX,
             1.0, (255, 255, 255), 2, cv.LINE_AA)
     return image
 
