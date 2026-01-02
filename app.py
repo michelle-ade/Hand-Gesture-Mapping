@@ -19,6 +19,11 @@ from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
+from tkinter import *
+from tkinter import ttk
+
+selectedOptions = []
+OOChoice = "Nothing"
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -41,8 +46,153 @@ def get_args():
 
     return args
 
-
 def main():
+    #Additional Window for user input
+    root = Tk()
+    root.geometry("720x500")
+    
+    Label(root, text="R-Gesture").grid(row = 0, column = 2)
+    Label(root, text="Open").grid(row = 1, column = 2)
+    Label(root, text="Open").grid(row = 2, column = 2)
+    Label(root, text="Open").grid(row = 3, column = 2)
+    Label(root, text="Close").grid(row = 4, column = 2)
+    Label(root, text="Close").grid(row = 5, column = 2)
+    Label(root, text="Close").grid(row = 6, column = 2)
+    Label(root, text="Pointer").grid(row = 7, column = 2)
+    Label(root, text="Pointer").grid(row = 8, column = 2)
+    Label(root, text="Pointer").grid(row = 9, column = 2)
+
+    Label(root, text="L-Gesture").grid(row = 0, column = 1)
+    Label(root, text="Open").grid(row = 1, column = 1)
+    Label(root, text="Close").grid(row = 2, column = 1)
+    Label(root, text="Pointer").grid(row = 3, column = 1)
+    Label(root, text="Open").grid(row = 4, column = 1)
+    Label(root, text="Close").grid(row = 5, column = 1)
+    Label(root, text="Pointer").grid(row = 6, column = 1)
+    Label(root, text="Open").grid(row = 7, column = 1)
+    Label(root, text="Close").grid(row = 8, column = 1)
+    Label(root, text="Pointer").grid(row = 9, column = 1)
+
+    #Dropdown menu options
+    options = ["Select-All", "Copy", "Paste", "Close-Window", "Backspace",
+               "Cut", "Mouse-Movement", "Left-Click", "Right-Click"]
+
+    #Fill Default Commands in dropdown menu
+
+    # OOChoice = StringVar(value="Select All")
+    # OOMenu = OptionMenu(root, OOChoice, *options)
+    # OOMenu.grid(row = 1, column = 3)
+
+    # OCChoice = StringVar(value="Copy")
+    # OCMenu = OptionMenu(root, OCChoice, *options)
+    # OCMenu.grid(row = 2, column = 3)
+
+    # OPChoice = StringVar(value="Paste")
+    # OPMenu = OptionMenu(root, OPChoice, *options)
+    # OPMenu.grid(row = 3, column = 3)
+
+    # COChoice = StringVar(value="Backspace")
+    # COMenu = OptionMenu(root, COChoice, *options)
+    # COMenu.grid(row = 4, column = 3)
+
+    # CCChoice = StringVar(value="Close Window")
+    # CCMenu = OptionMenu(root, CCChoice, *options)
+    # CCMenu.grid(row = 5, column = 3)
+    
+    # CPChoice = StringVar(value="Cut")
+    # CPMenu = OptionMenu(root, CPChoice, *options)
+    # CPMenu.grid(row = 6, column = 3)
+
+    # POChoice = StringVar(value="Mouse Movement")
+    # POMenu = OptionMenu(root, POChoice, *options)
+    # POMenu.grid(row = 7, column = 3)
+
+    # PCChoice = StringVar(value="Left-Click")
+    # PCMenu = OptionMenu(root, PCChoice, *options)
+    # PCMenu.grid(row = 8, column = 3)
+
+    # PPChoice = StringVar(value="Right-Click")
+    # PPMenu = OptionMenu(root, PPChoice, *options)
+    # PPMenu.grid(row = 9, column = 3)
+
+    # selectedOptions = [9]
+
+    # def confirmCommandChoices():
+    #     selectedOptions.append(OOChoice)
+    #     selectedOptions.append(OCChoice)
+    #     selectedOptions.append(OPChoice)
+    #     selectedOptions.append(COChoice) 
+    #     selectedOptions.append(CCChoice) 
+    #     selectedOptions.append(CPChoice) 
+    #     selectedOptions.append(POChoice)
+    #     selectedOptions.append(PCChoice) 
+    #     selectedOptions.append(PPChoice)
+    
+    #     print(selectedOptions[0])
+    #     print(OOChoice)
+    #     root.destroy()
+    
+    #using combobox instead
+    OOMenu = ttk.Combobox(root, values = options)
+    OOMenu.set("Select All")
+    OOMenu.grid(row = 1, column = 3)
+
+    OCMenu = ttk.Combobox(root, values = options)
+    OCMenu.set("Copy")
+    OCMenu.grid(row = 2, column = 3)
+
+    OPMenu = ttk.Combobox(root, values = options)
+    OPMenu.set("Paste")
+    OPMenu.grid(row = 3, column = 3)
+
+    COMenu = ttk.Combobox(root, values = options)
+    COMenu.set("Paste")
+    COMenu.grid(row = 4, column = 3)
+
+    CCMenu = ttk.Combobox(root, values = options)
+    CCMenu.set("Close Window")
+    CCMenu.grid(row = 5, column = 3)
+    
+    CPMenu = ttk.Combobox(root, values = options)
+    CPMenu.set("Cut")
+    CPMenu.grid(row = 6, column = 3)
+
+    POMenu = ttk.Combobox(root, values = options)
+    POMenu.set("Mouse Movement")
+    POMenu.grid(row = 7, column = 3)
+
+    PCMenu = ttk.Combobox(root, values = options)
+    PCMenu.set("Left-Click")
+    PCMenu.grid(row = 8, column = 3)
+
+    PPMenu = ttk.Combobox(root, values = options)
+    PPMenu.set("Right-Click")
+    PPMenu.grid(row = 9, column = 3)
+
+    def confirmCommandChoices():
+        global selectedOptions
+        selectedOptions.append(OOMenu.get())
+        selectedOptions.append(OCMenu.get())
+        selectedOptions.append(OPMenu.get())
+        selectedOptions.append(COMenu.get()) 
+        selectedOptions.append(CCMenu.get()) 
+        selectedOptions.append(CPMenu.get()) 
+        selectedOptions.append(POMenu.get())
+        selectedOptions.append(PCMenu.get()) 
+        selectedOptions.append(PPMenu.get())
+    
+        #print(selectedOptions[0])
+
+        root.destroy()
+
+    btn = Button(text="Confirm Command Choices", command = confirmCommandChoices)
+    btn.grid(row = 10, column = 2)
+
+    #print(OOChoice)
+
+    root.title("Gesture->Keybind Mapping")
+    root.mainloop()
+    
     # Argument parsing #################################################################
     args = get_args()
 
@@ -188,8 +338,11 @@ def main():
                         pointer = landmark_list[8]   # [x, y]
                         pointCoords = f"X: {pointer[0]}, Y: {pointer[1]}"
 
-                        #move mouse to pointer coords
-                        pyautogui.moveTo(pointer[0], pointer[1])
+                        #move mouse to pointer coords * 4
+                        pyautogui.moveTo(pointer[0]*2, pointer[1])
+
+                        print("X: " + str(pointer[0]*2))
+                        print("Y: " + str(pointer[1]*2))
                 
                 #print("Right: " + rightGesture)
 
@@ -214,45 +367,70 @@ def main():
                 if (rightGesture == "open"):
 
                     if (leftGesture == "open"):
-                        currentCommand = "SelectAll."
-                        pyautogui.hotkey('ctrl', 'a')
+                        #currentCommand = "SelectAll." 
+                        currentCommand = selectedOptions[0]
 
                     elif (leftGesture == "close"):
-                        currentCommand = "Copy"
-                        pyautogui.hotkey('ctrl', 'c')
+                        #currentCommand = "Copy"
+                        currentCommand = selectedOptions[1]
 
                     elif (leftGesture == "pointer"):
-                        currentCommand ="Paste"
-                        pyautogui.hotkey('ctrl', 'v')
+                        #currentCommand ="Paste"
+                        currentCommand = selectedOptions[2]
 
                 elif (rightGesture == "close"):
 
                     if (leftGesture == "open"):
-                        currentCommand = "Backspace."
-                        pyautogui.press('backspace')
+                        #currentCommand = "Backspace."
+                        currentCommand = selectedOptions[3]
 
                     elif (leftGesture == "close"):
                         #1 sec hold delay
-                        time.sleep(1)
-                        currentCommand = "CloseWindow"
-                        pyautogui.hotkey('alt', 'f4')
+                        #time.sleep(1) 
+                        # this actually just pauses the whole program for 1 sec
+                        #currentCommand = "CloseWindow"
+                        currentCommand = selectedOptions[4]
 
                     elif (leftGesture == "pointer"):
-                        currentCommand = "Cut"
-                        pyautogui.hotkey('ctrl', 'x')
+                        #currentCommand = "Cut"
+                        currentCommand = selectedOptions[5]
 
                 elif (rightGesture == "pointer"):
                     #maybe enable point history here?
                     #pyautogui.moveTo()
                     if (leftGesture == "open"):
-                        currentCommand = "Mouse."
+                        #currentCommand = "Mouse."
+                        currentCommand = selectedOptions[6]
                     elif (leftGesture == "close"):
-                        currentCommand = "Left-Click"
-                        pyautogui.click()
+                        #currentCommand = "Left-Click"
+                        currentCommand = selectedOptions[7]
                     elif (leftGesture == "pointer"):
-                        currentCommand = "Right-Click"
-                        pyautogui.click(button='right')
+                        #currentCommand = "Right-Click"
+                        currentCommand = selectedOptions[8]
 
+                #Execute Command
+                if currentCommand == "Select-All":
+                    pyautogui.hotkey('ctrl', 'a')
+                elif currentCommand == "Copy":
+                    pyautogui.hotkey('ctrl', 'c')
+                elif currentCommand == "Paste":
+                    pyautogui.hotkey('ctrl', 'v')
+                elif currentCommand == "Backspace":
+                    pyautogui.press('backspace')
+                elif currentCommand == "Close-Window":
+                    pyautogui.hotkey('alt', 'f4')
+                elif currentCommand == "Cut":
+                    pyautogui.hotkey('ctrl', 'x')
+                elif currentCommand == "Mouse":
+                    #nothing to do here
+                    x = 1+2
+                elif currentCommand == "Left-Click":
+                    pyautogui.click()
+                elif currentCommand == "Right-Click":
+                    pyautogui.click(button='right')
+                else:
+                    print("Command Error: Undefined")
+                
                 # Finger gesture classification
                 finger_gesture_id = 0
 
