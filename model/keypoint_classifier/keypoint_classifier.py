@@ -3,6 +3,17 @@
 import numpy as np
 import tensorflow as tf
 
+import sys
+import os
+
+def resource_path(relative_path):
+    # try:
+    #     base_path = sys._MEIPASS
+    # except Exception:
+    #     base_path = os.path.abspath(".")
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 
 class KeyPointClassifier(object):
     def __init__(
@@ -10,7 +21,8 @@ class KeyPointClassifier(object):
         model_path='model/keypoint_classifier/keypoint_classifier.tflite',
         num_threads=1,
     ):
-        self.interpreter = tf.lite.Interpreter(model_path=model_path,
+        resolved_path = resource_path(model_path)
+        self.interpreter = tf.lite.Interpreter(model_path=resolved_path,
                                                num_threads=num_threads)
 
         self.interpreter.allocate_tensors()

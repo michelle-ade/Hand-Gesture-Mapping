@@ -22,6 +22,18 @@ from model import PointHistoryClassifier
 from tkinter import *
 from tkinter import ttk
 
+#attempting to fix pyinstaller path issues
+import sys
+import os
+
+def resource_path(relative_path):
+    # try:
+    #     base_path = sys._MEIPASS
+    # except Exception:
+    #     base_path = os.path.abspath(".")
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 selectedOptions = []
 OOChoice = "Nothing"
 
@@ -224,15 +236,18 @@ def main():
 
     point_history_classifier = PointHistoryClassifier()
 
+    #path fix
+    keypoint_label_path = resource_path('model/keypoint_classifier/keypoint_classifier_label.csv')
+    point_label_path = resource_path('model/point_history_classifier/point_history_classifier_label.csv')
+
     # Read labels ###########################################################
-    with open('model/keypoint_classifier/keypoint_classifier_label.csv',
+    with open(keypoint_label_path,
               encoding='utf-8-sig') as f:
         keypoint_classifier_labels = csv.reader(f)
         keypoint_classifier_labels = [
             row[0] for row in keypoint_classifier_labels
         ]
-    with open(
-            'model/point_history_classifier/point_history_classifier_label.csv',
+    with open(point_label_path,
             encoding='utf-8-sig') as f:
         point_history_classifier_labels = csv.reader(f)
         point_history_classifier_labels = [
