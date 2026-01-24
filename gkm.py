@@ -13,7 +13,7 @@ import numpy as np
 import mediapipe as mp
 
 import pyautogui
-import pydirectinput
+#import pydirectinput
 
 from utils import CvFpsCalc
 from model import KeyPointClassifier
