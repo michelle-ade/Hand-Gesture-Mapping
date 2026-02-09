@@ -158,7 +158,7 @@ def main():
     OPMenu.grid(row = 3, column = 3)
 
     COMenu = ttk.Combobox(root, values = options)
-    COMenu.set("Paste")
+    COMenu.set("Backspace")
     COMenu.grid(row = 4, column = 3)
 
     CCMenu = ttk.Combobox(root, values = options)
@@ -170,7 +170,7 @@ def main():
     CPMenu.grid(row = 6, column = 3)
 
     POMenu = ttk.Combobox(root, values = options)
-    POMenu.set("Mouse Movement")
+    POMenu.set("Mouse")
     POMenu.grid(row = 7, column = 3)
 
     PCMenu = ttk.Combobox(root, values = options)
@@ -353,7 +353,7 @@ def main():
                         pointer = landmark_list[8]   # [x, y]
                         pointCoords = f"X: {pointer[0]}, Y: {pointer[1]}"
 
-                        #move mouse to pointer coords * 4
+                        #move mouse to pointer coords * 2
                         pyautogui.moveTo(pointer[0]*2, pointer[1])
 
                         print("X: " + str(pointer[0]*2))
