@@ -87,7 +87,7 @@ def main():
 
     #Dropdown menu options
     options = ["Select-All", "Copy", "Paste", "Close-Window", "Backspace",
-               "Cut", "Mouse-Movement", "Left-Click", "Right-Click"]
+               "Cut", "Mouse-Movement", "Left-Click", "Right-Click","(None)"]
 
     #Fill Default Commands in dropdown menu
 
@@ -146,7 +146,7 @@ def main():
     
     #using combobox instead
     OOMenu = ttk.Combobox(root, values = options)
-    OOMenu.set("Select All")
+    OOMenu.set("(None)")
     OOMenu.grid(row = 1, column = 3)
 
     OCMenu = ttk.Combobox(root, values = options)
@@ -162,7 +162,7 @@ def main():
     COMenu.grid(row = 4, column = 3)
 
     CCMenu = ttk.Combobox(root, values = options)
-    CCMenu.set("Close Window")
+    CCMenu.set("(None)")
     CCMenu.grid(row = 5, column = 3)
     
     CPMenu = ttk.Combobox(root, values = options)
@@ -443,6 +443,9 @@ def main():
                     pyautogui.click()
                 elif currentCommand == "Right-Click":
                     pyautogui.click(button='right')
+                elif currentCommand == "(None)":
+                    #do nothing here
+                    y = 1+2
                 else:
                     print("Command Error: Undefined")
                 
@@ -475,8 +478,10 @@ def main():
         debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_info(debug_image, fps, mode, number, currentCommand, pointCoords)
 
+        cv.namedWindow('Gesture-Keybind Mapping', cv.WINDOW_NORMAL)
+        cv.resizeWindow('Gesture-Keybind Mapping', cap_width, cap_height)
         # Screen reflection #############################################################
-        cv.imshow('Hand Gesture Recognition', debug_image)
+        cv.imshow('Gesture-Keybind Mapping', debug_image)
 
     cap.release()
     cv.destroyAllWindows()
