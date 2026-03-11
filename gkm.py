@@ -478,8 +478,8 @@ def main():
         debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_info(debug_image, fps, mode, number, currentCommand, pointCoords)
 
-        cv.namedWindow('Gesture-Keybind Mapping', cv.WINDOW_NORMAL)
-        cv.resizeWindow('Gesture-Keybind Mapping', cap_width, cap_height)
+        #cv.namedWindow('Gesture-Keybind Mapping', cv.WINDOW_NORMAL)
+        #cv.resizeWindow('Gesture-Keybind Mapping', cap_width, cap_height)
         # Screen reflection #############################################################
         cv.imshow('Gesture-Keybind Mapping', debug_image)
 
