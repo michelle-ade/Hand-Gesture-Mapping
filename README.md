@@ -1,4 +1,12 @@
-# hand-gesture-recognition-using-mediapipe
+# Gesture-Keybind Mapping
+Adapted From https://github.com/kinivi/hand-gesture-recognition-mediapipe/blob/main/app.py
+Original Repository (Japanese): https://github.com/Kazuhito00/hand-gesture-recognition-using-mediapipe
+Modified by Michelle Adetunji 2026
+
+This program is built on the Mediapipe hand recognition sample implementation by Kazuhito00,
+using an English translation of the repository by Kinivi.
+It has been extended to recognise multi-hand gesture combinations and perform keyboard and mouse inputs.
+<br>
 Estimate hand pose using MediaPipe (Python version).<br> This is a sample 
 program that recognizes hand signs and finger gestures with a simple MLP using the detected key points.
 <br> ❗ _️**This is English Translated version of the [original repo](https://github.com/Kazuhito00/hand-gesture-recognition-using-mediapipe). All Content is translated to english along with comments and notebooks**_ ❗
@@ -13,16 +21,17 @@ This repository contains the following contents.
 * Learning data for finger gesture recognition and notebook for learning
 
 # Requirements
-* mediapipe 0.8.1
-* OpenCV 3.4.2 or Later
-* Tensorflow 2.3.0 or Later<br>tf-nightly 2.5.0.dev or later (Only when creating a TFLite for an LSTM model)
-* scikit-learn 0.23.2 or Later (Only if you want to display the confusion matrix) 
-* matplotlib 3.3.2 or Later (Only if you want to display the confusion matrix)
+* mediapipe==0.10.14 
+* tensorflow==2.16.1 
+* protobuf==4.25.3 
+* ml-dtypes==0.3.2 
+* jax==0.4.28 
+* jaxlib==0.4.28
 
 # Demo
 Here's how to run the demo using your webcam.
 ```bash
-python app.py
+python gkm.py
 ```
 
 The following options can be specified when running the demo.
@@ -35,30 +44,6 @@ Detection confidence threshold (Default：0.5)
 * --min_tracking_confidence<br>
 Tracking confidence threshold (Default：0.5)
 
-# Directory
-<pre>
-│  app.py
-│  keypoint_classification.ipynb
-│  point_history_classification.ipynb
-│  
-├─model
-│  ├─keypoint_classifier
-│  │  │  keypoint.csv
-│  │  │  keypoint_classifier.hdf5
-│  │  │  keypoint_classifier.py
-│  │  │  keypoint_classifier.tflite
-│  │  └─ keypoint_classifier_label.csv
-│  │          
-│  └─point_history_classifier
-│      │  point_history.csv
-│      │  point_history_classifier.hdf5
-│      │  point_history_classifier.py
-│      │  point_history_classifier.tflite
-│      └─ point_history_classifier_label.csv
-│          
-└─utils
-    └─cvfpscalc.py
-</pre>
 ### app.py
 This is a sample program for inference.<br>
 In addition, learning data (key points) for hand sign recognition,<br>

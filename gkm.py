@@ -1,41 +1,52 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+"""
+Gesture-Keybind Mapping
+Forked From https://github.com/kinivi/hand-gesture-recognition-mediapipe/blob/main/app.py
+Adapted From Original Repository (Japanese): https://github.com/Kazuhito00/hand-gesture-recognition-using-mediapipe
+Modified by Michelle Adetunji 2026
+
+This program is built on the Mediapipe hand recognition sample implementation by Kazuhito00,
+using an English translation of the repository by Kinivi.
+It has been extended to recognise multi-hand gesture combinations and perform customisable keyboard and mouse inputs.
+Full code changes and version history can be viewed in the repository 
+"""
 import csv
 import copy
 import argparse
 import itertools
 from collections import Counter
 from collections import deque
-import time
 
 import cv2 as cv
 import numpy as np
 import mediapipe as mp
 
-import pyautogui
-#import pydirectinput
-
 from utils import CvFpsCalc
 from model import KeyPointClassifier
 from model import PointHistoryClassifier
 
+import pyautogui
+
 from tkinter import *
 from tkinter import ttk
 
-#attempting to fix pyinstaller path issues
 import sys
 import os
 
-def resource_path(relative_path):
-    # try:
-    #     base_path = sys._MEIPASS
-    # except Exception:
-    #     base_path = os.path.abspath(".")
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
+import uiautomation as uiauto
 
-selectedOptions = []
-OOChoice = "Nothing"
+def isTextFocused():
+    control = uiauto.GetFocusedControl()
+    print(control.ControlType)
+
+    if (control.ControlType == 50004):
+        return True
+    else:
+        return False
+    
+#Fix pyinstaller path issues while developing
+def resourcePath(relativePath):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relativePath)
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -57,6 +68,9 @@ def get_args():
     args = parser.parse_args()
 
     return args
+
+#User Command Choices
+selectedOptions = []
 
 def main():
     #Additional Window for user input
@@ -89,62 +103,7 @@ def main():
     options = ["Select-All", "Copy", "Paste", "Close-Window", "Backspace",
                "Cut", "Mouse-Movement", "Left-Click", "Right-Click","(None)"]
 
-    #Fill Default Commands in dropdown menu
-
-    # OOChoice = StringVar(value="Select All")
-    # OOMenu = OptionMenu(root, OOChoice, *options)
-    # OOMenu.grid(row = 1, column = 3)
-
-    # OCChoice = StringVar(value="Copy")
-    # OCMenu = OptionMenu(root, OCChoice, *options)
-    # OCMenu.grid(row = 2, column = 3)
-
-    # OPChoice = StringVar(value="Paste")
-    # OPMenu = OptionMenu(root, OPChoice, *options)
-    # OPMenu.grid(row = 3, column = 3)
-
-    # COChoice = StringVar(value="Backspace")
-    # COMenu = OptionMenu(root, COChoice, *options)
-    # COMenu.grid(row = 4, column = 3)
-
-    # CCChoice = StringVar(value="Close Window")
-    # CCMenu = OptionMenu(root, CCChoice, *options)
-    # CCMenu.grid(row = 5, column = 3)
-    
-    # CPChoice = StringVar(value="Cut")
-    # CPMenu = OptionMenu(root, CPChoice, *options)
-    # CPMenu.grid(row = 6, column = 3)
-
-    # POChoice = StringVar(value="Mouse Movement")
-    # POMenu = OptionMenu(root, POChoice, *options)
-    # POMenu.grid(row = 7, column = 3)
-
-    # PCChoice = StringVar(value="Left-Click")
-    # PCMenu = OptionMenu(root, PCChoice, *options)
-    # PCMenu.grid(row = 8, column = 3)
-
-    # PPChoice = StringVar(value="Right-Click")
-    # PPMenu = OptionMenu(root, PPChoice, *options)
-    # PPMenu.grid(row = 9, column = 3)
-
-    # selectedOptions = [9]
-
-    # def confirmCommandChoices():
-    #     selectedOptions.append(OOChoice)
-    #     selectedOptions.append(OCChoice)
-    #     selectedOptions.append(OPChoice)
-    #     selectedOptions.append(COChoice) 
-    #     selectedOptions.append(CCChoice) 
-    #     selectedOptions.append(CPChoice) 
-    #     selectedOptions.append(POChoice)
-    #     selectedOptions.append(PCChoice) 
-    #     selectedOptions.append(PPChoice)
-    
-    #     print(selectedOptions[0])
-    #     print(OOChoice)
-    #     root.destroy()
-    
-    #using combobox instead
+    #Fill Default Commands in dropdown menu using combobox 
     OOMenu = ttk.Combobox(root, values = options)
     OOMenu.set("(None)")
     OOMenu.grid(row = 1, column = 3)
@@ -192,15 +151,11 @@ def main():
         selectedOptions.append(POMenu.get())
         selectedOptions.append(PCMenu.get()) 
         selectedOptions.append(PPMenu.get())
-    
-        #print(selectedOptions[0])
 
         root.destroy()
 
     btn = Button(text="Confirm Command Choices", command = confirmCommandChoices)
     btn.grid(row = 10, column = 2)
-
-    #print(OOChoice)
 
     root.title("Gesture->Keybind Mapping")
     root.mainloop()
@@ -236,9 +191,9 @@ def main():
 
     point_history_classifier = PointHistoryClassifier()
 
-    #path fix
-    keypoint_label_path = resource_path('model/keypoint_classifier/keypoint_classifier_label.csv')
-    point_label_path = resource_path('model/point_history_classifier/point_history_classifier_label.csv')
+    #Classifier path fix
+    keypoint_label_path = resourcePath('model/keypoint_classifier/keypoint_classifier_label.csv')
+    point_label_path = resourcePath('model/point_history_classifier/point_history_classifier_label.csv')
 
     # Read labels ###########################################################
     with open(keypoint_label_path,
@@ -296,11 +251,10 @@ def main():
         #  ####################################################################
         if results.multi_hand_landmarks is not None:
 
-            rightGesture = "";
-            leftGesture = "";
+            rightGesture = ""
+            leftGesture = ""
 
             #one command fire for each gesture detected
-            #currentCommand;
             for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
                                                   results.multi_handedness):
                 # Bounding box calculation
@@ -324,17 +278,7 @@ def main():
                 else:
                     point_history.append([0, 0])
 
-                #check handedness - returns "Right" or "Left"
-                #print(handedness.classification[0].label[0:])
-
-                #test - if closed hand, press C on keyboard
-                #if hand_sign_id == 1:
-                    #print("Pressing C")
-                    #pyautogui.press('C')
-                
-
                 #Getting Both Hands' Gestures
-                #rightGesture = "";
                 if (handedness.classification[0].label[0:] == "Right"):
 
                     #Right - Open
@@ -358,10 +302,7 @@ def main():
 
                         print("X: " + str(pointer[0]*2))
                         print("Y: " + str(pointer[1]*2))
-                
-                #print("Right: " + rightGesture)
 
-                #leftGesture = "";
                 if (handedness.classification[0].label[0:] == "Left"):
 
                     #Left - Open
@@ -375,8 +316,6 @@ def main():
                     #Left - Pointer
                     elif (hand_sign_id == 2):
                         leftGesture = "pointer"
-                
-                #print("Left: " + leftGesture)
 
                 #Hand Gesture Combinations. Right Hand determines gesture group
                 if (rightGesture == "open"):
@@ -400,9 +339,6 @@ def main():
                         currentCommand = selectedOptions[3]
 
                     elif (leftGesture == "close"):
-                        #1 sec hold delay
-                        #time.sleep(1) 
-                        # this actually just pauses the whole program for 1 sec
                         #currentCommand = "CloseWindow"
                         currentCommand = selectedOptions[4]
 
@@ -411,8 +347,6 @@ def main():
                         currentCommand = selectedOptions[5]
 
                 elif (rightGesture == "pointer"):
-                    #maybe enable point history here?
-                    #pyautogui.moveTo()
                     if (leftGesture == "open"):
                         #currentCommand = "Mouse."
                         currentCommand = selectedOptions[6]
@@ -426,26 +360,39 @@ def main():
                 #Execute Command
                 if currentCommand == "Select-All":
                     pyautogui.hotkey('ctrl', 'a')
+
                 elif currentCommand == "Copy":
-                    pyautogui.hotkey('ctrl', 'c')
+                    if isTextFocused():
+                        pyautogui.hotkey('ctrl', 'c')
+                    else:
+                        currentCommand = 'Error - Cannot Copy'
+
                 elif currentCommand == "Paste":
-                    pyautogui.hotkey('ctrl', 'v')
+                    if isTextFocused():
+                        pyautogui.hotkey('ctrl', 'v')
+                    else:
+                        currentCommand = 'Error - Cannot Paste'
+
                 elif currentCommand == "Backspace":
-                    pyautogui.press('backspace')
+                    if isTextFocused():
+                        pyautogui.press('backspace')
+                    else:
+                        currentCommand = 'Error - Cannot Backspace'
+
                 elif currentCommand == "Close-Window":
                     pyautogui.hotkey('alt', 'f4')
                 elif currentCommand == "Cut":
                     pyautogui.hotkey('ctrl', 'x')
                 elif currentCommand == "Mouse":
-                    #nothing to do here
-                    x = 1+2
+                    #Mouse Movement
+                    pass
                 elif currentCommand == "Left-Click":
                     pyautogui.click()
                 elif currentCommand == "Right-Click":
                     pyautogui.click(button='right')
                 elif currentCommand == "(None)":
-                    #do nothing here
-                    y = 1+2
+                    #Empty Command
+                    pass
                 else:
                     print("Command Error: Undefined")
                 
@@ -478,14 +425,11 @@ def main():
         debug_image = draw_point_history(debug_image, point_history)
         debug_image = draw_info(debug_image, fps, mode, number, currentCommand, pointCoords)
 
-        #cv.namedWindow('Gesture-Keybind Mapping', cv.WINDOW_NORMAL)
-        #cv.resizeWindow('Gesture-Keybind Mapping', cap_width, cap_height)
         # Screen reflection #############################################################
         cv.imshow('Gesture-Keybind Mapping', debug_image)
 
     cap.release()
     cv.destroyAllWindows()
-
 
 def select_mode(key, mode):
     number = -1
@@ -498,7 +442,6 @@ def select_mode(key, mode):
     if key == 104:  # h
         mode = 2
     return number, mode
-
 
 def calc_bounding_rect(image, landmarks):
     image_width, image_height = image.shape[1], image.shape[0]
@@ -517,7 +460,6 @@ def calc_bounding_rect(image, landmarks):
 
     return [x, y, x + w, y + h]
 
-
 def calc_landmark_list(image, landmarks):
     image_width, image_height = image.shape[1], image.shape[0]
 
@@ -532,7 +474,6 @@ def calc_landmark_list(image, landmarks):
         landmark_point.append([landmark_x, landmark_y])
 
     return landmark_point
-
 
 def pre_process_landmark(landmark_list):
     temp_landmark_list = copy.deepcopy(landmark_list)
@@ -560,7 +501,6 @@ def pre_process_landmark(landmark_list):
 
     return temp_landmark_list
 
-
 def pre_process_point_history(image, point_history):
     image_width, image_height = image.shape[1], image.shape[0]
 
@@ -583,7 +523,6 @@ def pre_process_point_history(image, point_history):
 
     return temp_point_history
 
-
 def logging_csv(number, mode, landmark_list, point_history_list):
     if mode == 0:
         pass
@@ -598,7 +537,6 @@ def logging_csv(number, mode, landmark_list, point_history_list):
             writer = csv.writer(f)
             writer.writerow([number, *point_history_list])
     return
-
 
 def draw_landmarks(image, landmark_point):
     if len(landmark_point) > 0:
@@ -787,7 +725,6 @@ def draw_landmarks(image, landmark_point):
 
     return image
 
-
 def draw_bounding_rect(use_brect, image, brect):
     if use_brect:
         # Outer rectangle
@@ -795,7 +732,6 @@ def draw_bounding_rect(use_brect, image, brect):
                      (0, 0, 0), 1)
 
     return image
-
 
 def draw_info_text(image, brect, handedness, hand_sign_text,
                    finger_gesture_text):
@@ -814,7 +750,6 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
                    cv.LINE_AA)
 
     return image
-
 
 def draw_point_history(image, point_history):
     for index, point in enumerate(point_history):
@@ -858,7 +793,6 @@ def draw_info(image, fps, mode, number, command, pointCoords):
     cv.putText(image, "Coords: " + pointCoords, (500, 30), cv.FONT_HERSHEY_SIMPLEX,
             1.0, (255, 255, 255), 2, cv.LINE_AA)
     return image
-
 
 if __name__ == '__main__':
     main()

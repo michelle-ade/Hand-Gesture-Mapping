@@ -1,0 +1,6 @@
+mediapipe==0.10.14 
+tensorflow==2.16.1 
+protobuf==4.25.3 
+ml-dtypes==0.3.2 
+jax==0.4.28 
+jaxlib==0.4.28
