@@ -7,10 +7,7 @@ import sys
 import os
 
 def resourcePath(relativePath):
-    # try:
-    #     base_path = sys._MEIPASS
-    # except Exception:
-    #     base_path = os.path.abspath(".")
+
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relativePath)
 
@@ -21,8 +18,12 @@ class KeyPointClassifier(object):
         model_path='keypoint_classifier.tflite',
         num_threads=1,
     ):
-        resolved_path = resourcePath(model_path)
-        self.interpreter = tf.lite.Interpreter(model_path=resolved_path,
+        #resolved_path = resourcePath(model_path)
+        if hasattr(sys, '_MEIPASS'):
+            model_path = resourcePath('keypoint_classifier.tflite')
+        else:
+            model_path = 'model/keypoint_classifier/keypoint_classifier.tflite'
+        self.interpreter = tf.lite.Interpreter(model_path=model_path,
                                                num_threads=num_threads)
 
         self.interpreter.allocate_tensors()

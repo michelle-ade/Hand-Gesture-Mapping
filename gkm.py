@@ -7,7 +7,7 @@ Modified by Michelle Adetunji 2026
 This program is built on the Mediapipe hand recognition sample implementation by Kazuhito00,
 using an English translation of the repository by Kinivi.
 It has been extended to recognise multi-hand gesture combinations and perform customisable keyboard and mouse inputs.
-Full code changes and version history can be viewed in the repository 
+Full code changes and version history can be viewed in the repository https://github.com/michelle-ade/Hand-Gesture-Mapping 
 """
 import csv
 import copy
@@ -46,6 +46,10 @@ def isTextFocused():
 #Fix pyinstaller path issues while developing
 def resourcePath(relativePath):
     base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    dev_path = os.path.join(base_path, 'model', relativePath)
+    if not hasattr(sys, '_MEIPASS') and os.path.exists(dev_path):
+        return dev_path
+        
     return os.path.join(base_path, relativePath)
 
 def get_args():
@@ -101,7 +105,7 @@ def main():
 
     #Dropdown menu options
     options = ["Select-All", "Copy", "Paste", "Close-Window", "Backspace",
-               "Cut", "Mouse-Movement", "Left-Click", "Right-Click","(None)"]
+               "Cut", "Mouse-Movement", "Left-Click", "Right-Click", "Escape", "Undo", "Redo", "(None)"]
 
     #Fill Default Commands in dropdown menu using combobox 
     OOMenu = ttk.Combobox(root, values = options)
@@ -192,8 +196,15 @@ def main():
     point_history_classifier = PointHistoryClassifier()
 
     #Classifier path fix
-    keypoint_label_path = resourcePath('model/keypoint_classifier/keypoint_classifier_label.csv')
-    point_label_path = resourcePath('model/point_history_classifier/point_history_classifier_label.csv')
+    # Check if we are running as an EXE
+    if hasattr(sys, '_MEIPASS'):
+        # In EXE mode, everything is in the root
+        keypoint_label_path = resourcePath('keypoint_classifier_label.csv')
+        point_label_path = resourcePath('point_history_classifier_label.csv')
+    else:
+        # In Terminal mode, we need to point to the actual subfolders
+        keypoint_label_path = 'model/keypoint_classifier/keypoint_classifier_label.csv'
+        point_label_path = 'model/point_history_classifier/point_history_classifier_label.csv'
 
     # Read labels ###########################################################
     with open(keypoint_label_path,
@@ -221,6 +232,9 @@ def main():
 
     #  ########################################################################
     mode = 0
+
+    isMouseDown = False;
+    mouseDownFrameCounter = 0
 
     while True:
         fps = cvFpsCalc.get()
@@ -298,7 +312,7 @@ def main():
                         pointCoords = f"X: {pointer[0]}, Y: {pointer[1]}"
 
                         #move mouse to pointer coords * 2
-                        pyautogui.moveTo(pointer[0]*2, pointer[1])
+                        pyautogui.moveTo(pointer[0]*2, pointer[1]*2)
 
                         print("X: " + str(pointer[0]*2))
                         print("Y: " + str(pointer[1]*2))
@@ -386,15 +400,35 @@ def main():
                 elif currentCommand == "Mouse":
                     #Mouse Movement
                     pass
-                elif currentCommand == "Left-Click":
-                    pyautogui.click()
                 elif currentCommand == "Right-Click":
                     pyautogui.click(button='right')
+
+                elif currentCommand == "Escape":
+                    pyautogui.press('esc')
+
+                elif currentCommand == "Undo":
+                    pyautogui.hotkey('ctrl', '')
+                
+                elif currentCommand == "Redo":
+                    pyautogui.hotkey('ctrl', 'y')
+
                 elif currentCommand == "(None)":
                     #Empty Command
                     pass
                 else:
                     print("Command Error: Undefined")
+
+                if currentCommand == "Left-Click":
+                    mouseDownFrameCounter = 3
+                    if not isMouseDown:
+                        pyautogui.mouseDown()
+                        isMouseDown = True
+                else:
+                    if isMouseDown:
+                        mouseDownFrameCounter -= 1
+                        if mouseDownFrameCounter <= 0:
+                            pyautogui.mouseUp()
+                            isMouseDown = False
                 
                 # Finger gesture classification
                 finger_gesture_id = 0

@@ -23,8 +23,11 @@ class PointHistoryClassifier(object):
         invalid_value=0,
         num_threads=1,
     ):
-        resolved_path = resourcePath(model_path)
-        self.interpreter = tf.lite.Interpreter(model_path=resolved_path,
+        if hasattr(sys, '_MEIPASS'):
+            model_path = resourcePath('point_history_classifier.tflite')
+        else:
+            model_path = 'model/point_history_classifier/point_history_classifier.tflite'
+        self.interpreter = tf.lite.Interpreter(model_path=model_path,
                                                num_threads=num_threads)
 
         self.interpreter.allocate_tensors()
